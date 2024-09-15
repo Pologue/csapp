@@ -1,1 +1,5 @@
 *.tar
+
+datalab-handout/btest
+datalab-handout/fshow
+datalab-handout/ishow
