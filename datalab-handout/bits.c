@@ -165,7 +165,7 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return !(~x ^ (1 << 31));
+  return !(~(x + 1) ^ x) & !!(~x ^ 0);
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +176,11 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  // solution below returns 1 if any odd-numbered bits in word set to 1
+  // return !!(((0x55 + 0x55 << 8 + 0x55 << 16 + 0x55 << 24) | x) ^ 0x0);
+
+  int mask = 0xAA + (0xAA << 8) + (0xAA << 16) + (0xAA << 24);
+  return !((x & mask) ^ mask);
 }
 /* 
  * negate - return -x 
@@ -186,7 +190,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1;
 }
 //3
 /* 
