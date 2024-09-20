@@ -203,12 +203,24 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  int mask2 = 0xFE | 0xFF << 8 | 0xFF << 16 | 0xFF << 24;   // 1111_1110
-  int mask1 = mask2 << 2;                                   // 1111_1000
-  int zero = 0x00 << 8 | 0x00 << 16 | 0x00 << 24;
-  int target1 = 0x30 | zero; // 0011_0xxx
-  int target2 = 0x38 | zero; // 0011_100x
-  return !((x & mask1) ^ target1) | !((x & mask2) ^ target2);
+  // solution below uses too many Ops
+  // int mask2 = 0xFE | 0xFF << 8 | 0xFF << 16 | 0xFF << 24;   // 1111_1110
+  // int mask1 = mask2 << 2;                                   // 1111_1000
+  // int zero = 0x00 << 8 | 0x00 << 16 | 0x00 << 24;
+  // int target1 = 0x30 | zero; // 0011_0xxx
+  // int target2 = 0x38 | zero; // 0011_100x
+  // return !((x & mask1) ^ target1) | !((x & mask2) ^ target2);
+
+  int shouldBeZero = x >> 6;
+  int cond1 = !(shouldBeZero ^ 0);
+
+  int shouldBeThree = x >> 4;
+  int cond2 = !(shouldBeThree ^ 3);
+
+  int shouldLessThanTen = x & 0xF;
+  int cond3 = !!((shouldLessThanTen + ~0xA + 1) >> 31);
+
+  return cond1 & cond2 & cond3;
 }
 /* 
  * conditional - same as x ? y : z 
