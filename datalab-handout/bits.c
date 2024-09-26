@@ -283,7 +283,26 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int sign, bit_16, bit_8, bit_4, bit_2, bit_1, bit_0, res, isZero;
+  // *
+  sign = x >> 31;
+  x = (sign & ~x) | (~sign & x); // have negative same as positive
+  isZero = !x; // -1 is the same as 0, so this line can't be in // *
+
+  bit_16 = !!(x >> 16) << 4; // if higher part of x exist, then bit_16 = 16
+  x = x >> bit_16;
+  bit_8 = !!(x >> 8) << 3;
+  x = x >> bit_8;
+  bit_4 = !!(x >> 4) << 2;
+  x = x >> bit_4;
+  bit_2 = !!(x >> 2) << 1;
+  x = x >> bit_2;
+  bit_1 = !!(x >> 1);
+  x = x >> bit_1;
+  bit_0 = x;
+
+  res = bit_16 + bit_8 + bit_4 + bit_2 + bit_1 + bit_0 + 1;
+  return (!!x << 31 >> 31) & res | isZero;
 }
 //float
 /* 
