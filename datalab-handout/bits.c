@@ -317,7 +317,38 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  unsigned sign, expr, frac;
+  sign = uf >> 31;
+  expr = (uf >> 23) & 0xFF;
+  // frac = uf << 9 >> 9;
+  frac = uf & 0x7FFFFF;
+
+  // uf == 0
+  // expr == 0 && frac == 0
+  if (!expr && !frac) {
+    return uf;
+  }
+
+  // uf == inf or NaN
+  // expr == 0xFF
+  if (!(expr ^ 0xFF)) {
+    return uf;
+  }
+
+  // uf is denormalize
+  // expr == 0
+  if (!expr) {
+    frac = frac << 1;
+    if (frac & 0x800000) {
+      expr = 1;
+      frac = frac << 9 >> 9;
+    }
+    return sign << 31 | (expr << 23) | frac;
+  }
+
+  // uf is normalize
+  expr = expr + 1;
+  return sign << 31 | (expr << 23) | frac;
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -332,7 +363,54 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  unsigned sign, expr, frac;
+  int E;
+  sign = (uf >> 31) & 1;
+  expr = uf >> 23 & 0xFF;
+  frac = uf & 0x7FFFFF;
+
+  // inf or NaN
+  if (expr == 0xFF) {
+    return 0x80000000u;
+  }
+
+  // uf == 0
+  if (expr == 0 && frac == 0) {
+    return 0;
+  }
+
+  // denormalize
+  // 0.xxxx
+  if (expr == 0) {
+    return 0; // too small
+  }
+
+  // normalize
+  // 1.xxxx
+  E = expr - 127;
+  frac = 1 << 23 | frac;
+
+  // too big
+  if (E > 31) {
+    return 0x80000000u;
+  }
+  if (E < 0) {
+    return 0;
+  }
+
+  if (E >= 23) {
+    frac = frac << (E - 23);
+  }
+  else {
+    frac = frac >> (23 - E);
+  }
+
+  if (sign)
+  {
+    frac = ~frac + 1;
+  }
+  
+  return frac;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
