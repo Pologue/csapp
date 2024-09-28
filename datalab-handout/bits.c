@@ -267,7 +267,8 @@ int isLessOrEqual(int x, int y) {
 int logicalNeg(int x) {
   int negX = ~x + 1;
   int sign = (negX | x) >> 31;
-  // printf("%x", sign + 1);
+  // if x is 0, then sign is 0, sign + 1 is 1
+  // otherwise sign is -1, sign + 1 is 0
   return sign + 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
@@ -426,5 +427,25 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  unsigned sign, expr, frac;
+  sign = 0;
+  
+  if (x < -149) { // (-126) + (-23)
+    // lower bound of denorm
+    return 0;
+  }
+  else if (x < -126) {
+    // upper bound of denorm
+    // lower bound of norm
+    // 2^(-126) * M = 2^x  -->  M = x + 126
+    return 1 << (x + 149);
+  }
+  else if (x <= 127) {
+    // upper bound of norm
+    expr = x + 127; // x = expr - bias
+    return expr << 23;
+  }
+  else {
+    return 0xFF << 23; // inf
+  }
 }
