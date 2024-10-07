@@ -25,6 +25,7 @@ Then compare with:
 'flyers'
 
 So index should be: 9 15 14 5 6 7
+
 Corresponding char: 9 /  .  5 6 7
 
 ## phase_6
